@@ -1,0 +1,21 @@
+id = "alevsk.global-search"
+name = "Global Search"
+version = "0.1.0"
+min_herdr_version = "0.7.0"
+description = "Global search workspaces, tabs, and panes using fzf"
+platforms = ["linux", "macos", "windows"]
+
+[[actions]]
+id = "trigger-search"
+title = "Trigger Search"
+command = ["herdr", "plugin", "pane", "open", "--plugin", "alevsk.global-search", "--entrypoint", "search-ui"]
+
+[[panes]]
+id = "search-ui"
+title = "Global Search"
+placement = "popup"
+width = "80%"
+height = 20
+command = ["bash", "search.sh"]
+
+
