@@ -14,11 +14,11 @@ When you have multiple AI agents working simultaneously across different workspa
 - `jq` (for parsing the socket API responses)
 - `fzf` (for the fuzzy search interface)
 
-## Manual Installation
+## Installation
 
-1. Link the plugin to Herdr:
+1. Install the plugin directly from GitHub:
    ```bash
-   herdr plugin link /path/to/herdr-global-search
+   herdr plugin install <username>/herdr-global-search
    ```
 
 2. Add the keybinding to your `~/.config/herdr/config.toml` (Herdr does not accept keybindings directly from plugin manifests):
