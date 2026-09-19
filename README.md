@@ -21,11 +21,13 @@ When you have multiple AI agents working simultaneously across different workspa
    herdr plugin install <username>/herdr-global-search
    ```
 
-2. Add the keybinding to your `~/.config/herdr/config.toml` (Herdr does not accept keybindings directly from plugin manifests):
+2. Add the keybinding to your `~/.config/herdr/config.toml`:
    ```toml
    [[keys.command]]
    key = "prefix+f"
-   command = "herdr plugin invoke herdr-global-search"
+   type = "plugin_action"
+   command = "alevsk.global-search.trigger-search"
+   description = "Global Search"
    ```
 
 3. Reload the Herdr server:
