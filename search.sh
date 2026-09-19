@@ -18,27 +18,28 @@ if ! command -v fzf >/dev/null; then
     exit 1
 fi
 
-# Fetch list of workspaces, format: workspace <id> <focus_id> <display string>
-# In our case focus_id is just the workspace ID
-WORKSPACES=$("$HERDR" workspace list | jq -r '
-  .result.workspaces[]? | "workspace \(.workspace_id) \(.workspace_id) [Workspace] \(.label)"
+# Fetch list of workspaces, tabs, and panes
+WS_JSON=$("$HERDR" workspace list)
+TAB_JSON=$("$HERDR" tab list)
+PANE_JSON=$("$HERDR" pane list)
+
+# Generate formatted output strings with lookups
+COMBINED=$(jq -n -r \
+  --argjson ws "$WS_JSON" \
+  --argjson tab "$TAB_JSON" \
+  --argjson pane "$PANE_JSON" '
+  
+  (($ws.result.workspaces // []) | map({key: .workspace_id, value: .label}) | from_entries) as $ws_map |
+  (($tab.result.tabs // []) | map({key: .tab_id, value: {label: .label, ws_id: .workspace_id}}) | from_entries) as $tab_map |
+
+  (($ws.result.workspaces // [])[] | "workspace \(.workspace_id) \(.workspace_id) [Workspace] \(.label)"),
+  (($tab.result.tabs // [])[] | "tab \(.tab_id) \(.tab_id) [Tab] \(.label) (Workspace: \($ws_map[.workspace_id] // "Unknown"))"),
+  (($pane.result.panes // [])[] | "pane \(.pane_id) \(.tab_id) [Pane] \(.terminal_title_stripped // "Pane \(.pane_id)") (Tab: \($tab_map[.tab_id].label // "Unknown"), Workspace: \($ws_map[$tab_map[.tab_id].ws_id] // "Unknown"))")
 ')
 
-# Fetch list of tabs
-TABS=$("$HERDR" tab list | jq -r '
-  .result.tabs[]? | "tab \(.tab_id) \(.tab_id) [Tab] \(.label) (Workspace: \(.workspace_id))"
-')
-
-# Fetch list of panes
-# Note: we use tab_id as the focus_id because focusing a pane globally requires direction flags 
-# in the current version, so we just focus its parent tab instead.
-PANES=$("$HERDR" pane list | jq -r '
-  .result.panes[]? | "pane \(.pane_id) \(.tab_id) [Pane] \(.terminal_title_stripped // "Pane \(.pane_id)")"
-')
-
-# Combine and pass to fzf
+# Pass to fzf
 # We hide the first 3 fields (<type> <id> <focus_id>) using --with-nth=4..
-SELECTED=$(printf "%s\n%s\n%s\n" "$WORKSPACES" "$TABS" "$PANES" | awk 'NF' | fzf --with-nth=4.. --prompt="Search Herdr > " --ansi)
+SELECTED=$(echo "$COMBINED" | awk 'NF' | fzf --with-nth=4.. --prompt="Search Herdr > " --ansi)
 
 # Exit if nothing selected (user pressed escape)
 if [[ -z "$SELECTED" ]]; then
