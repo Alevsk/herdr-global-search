@@ -1,6 +1,6 @@
 id = "alevsk.global-search"
 name = "Global Search"
-version = "0.1.0"
+version = "0.2.0"
 min_herdr_version = "0.7.0"
 description = "Global search workspaces, tabs, and panes using fzf"
 platforms = ["linux", "macos", "windows"]
