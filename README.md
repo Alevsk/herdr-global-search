@@ -18,7 +18,7 @@ When you have multiple AI agents working simultaneously across different workspa
 
 1. Install the plugin directly from GitHub:
    ```bash
-   herdr plugin install <username>/herdr-global-search
+   herdr plugin install alevsk/herdr-global-search
    ```
 
 2. Add the keybinding to your `~/.config/herdr/config.toml`:
