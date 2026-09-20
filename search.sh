@@ -19,9 +19,12 @@ if ! command -v fzf >/dev/null; then
 fi
 
 # Fetch list of workspaces, tabs, and panes
-WS_JSON=$("$HERDR" workspace list)
-TAB_JSON=$("$HERDR" tab list)
-PANE_JSON=$("$HERDR" pane list)
+WS_JSON=$("$HERDR" workspace list 2>/dev/null)
+WS_JSON=${WS_JSON:-"{}"}
+TAB_JSON=$("$HERDR" tab list 2>/dev/null)
+TAB_JSON=${TAB_JSON:-"{}"}
+PANE_JSON=$("$HERDR" pane list 2>/dev/null)
+PANE_JSON=${PANE_JSON:-"{}"}
 
 # Generate formatted output strings with lookups
 COMBINED=$(jq -n -r \
@@ -39,7 +42,7 @@ COMBINED=$(jq -n -r \
 
 # Pass to fzf
 # We hide the first 3 fields (<type> <id> <focus_id>) using --with-nth=4..
-SELECTED=$(echo "$COMBINED" | awk 'NF' | fzf --with-nth=4.. --prompt="Search Herdr > " --ansi)
+SELECTED=$(awk 'NF' <<< "$COMBINED" | fzf --with-nth=4.. --prompt="Search Herdr > " --ansi)
 
 # Exit if nothing selected (user pressed escape)
 if [[ -z "$SELECTED" ]]; then
@@ -47,9 +50,7 @@ if [[ -z "$SELECTED" ]]; then
 fi
 
 # Parse selection
-TYPE=$(echo "$SELECTED" | awk '{print $1}')
-ID=$(echo "$SELECTED" | awk '{print $2}')
-FOCUS_ID=$(echo "$SELECTED" | awk '{print $3}')
+read -r TYPE ID FOCUS_ID _ <<< "$SELECTED"
 
 # Navigate based on selected type
 case "$TYPE" in
